@@ -1,4 +1,5 @@
 import express from "express"
+
 import {
   createGrupo,
   getGrupos,
@@ -6,14 +7,12 @@ import {
   deleteGrupo
 } from "../controllers/grupos.controller.js"
 
-import { verifyToken } from "../middlewares/auth.middleware.js"
-import { isAdmin } from "../middlewares/admin.middleware.js"
-
 const router = express.Router()
 
-router.get("/", verifyToken, getGrupos)
-router.post("/", verifyToken, isAdmin, createGrupo)
-router.put("/:id", verifyToken, isAdmin, updateGrupo)
-router.delete("/:id", verifyToken, isAdmin, deleteGrupo)
+router.get("/", getGrupos)
+router.post("/", createGrupo)
+router.put("/:id", updateGrupo)
+router.delete("/:id", deleteGrupo)
+
 
 export default router

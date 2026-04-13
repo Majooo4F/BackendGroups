@@ -1,15 +1,17 @@
 import { Router } from "express"
+
 import {
   addUsuarioGrupo,
-  getMiembrosGrupo
+  getMiembrosGrupo,
+    getGruposUsuario,
+     removeUsuarioGrupo 
 } from "../controllers/grupoMiembros.controller.js"
-
-import { verifyToken } from "../middlewares/auth.middleware.js"
-import { isAdmin } from "../middlewares/admin.middleware.js"
 
 const router = Router()
 
-router.post("/", verifyToken, isAdmin, addUsuarioGrupo)
-router.get("/:grupo_id", verifyToken, isAdmin, getMiembrosGrupo)
+router.post("/", addUsuarioGrupo)
+router.get("/usuario/:usuario_id", getGruposUsuario)  // ← primero lo específico
+router.get("/:grupo_id", getMiembrosGrupo) 
+router.delete("/:grupo_id/usuario/:usuario_id", removeUsuarioGrupo)
 
 export default router

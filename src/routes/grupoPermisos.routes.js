@@ -1,21 +1,22 @@
 import express from "express"
-import { verifyToken } from "../middlewares/auth.middleware.js"
+
 import {
   asignarPermisoAGrupo,
   quitarPermisoDeGrupo,
-  listarPermisosDeGrupo
-} from "../controllers/GrupoPermisosController.js"
-import { isAdmin } from "../middlewares/admin.middleware.js"
+  listarPermisosDeGrupo,
+  getPermisosPorUsuario,
+  quitarTodosLosPermisosDeUsuario
+} from "../controllers/GrupoPermisos.controller.js"
 
 const router = express.Router()
+router.get("/permisos-usuario/:usuarioId", getPermisosPorUsuario)
+router.post("/:grupoId/permisos", asignarPermisoAGrupo)
 
-// 🔹 asignar permiso a usuario en grupo
-router.post("/:grupoId/permisos", verifyToken, isAdmin, asignarPermisoAGrupo)
+router.get("/:grupoId/permisos", listarPermisosDeGrupo)
 
-// 🔹 ver permisos de un grupo
-router.get("/:grupoId/permisos", verifyToken, isAdmin, listarPermisosDeGrupo)
+router.delete("/:grupoId/usuario/:usuarioId/permiso/:permisoId", quitarPermisoDeGrupo)
+router.delete("/:grupoId/usuario/:usuarioId/permisos", quitarTodosLosPermisosDeUsuario)
 
-// 🔹 eliminar permiso
-router.delete("/:grupoId/usuario/:usuarioId/permiso/:permisoId", verifyToken, isAdmin, quitarPermisoDeGrupo)
+
 
 export default router
