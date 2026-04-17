@@ -6,9 +6,9 @@ const schema = {
   type: "object",
   properties: {
     nombre: { type: "string", minLength: 3 },
-    descripcion: { type: "string", minLength: 5 }
+    descripcion: { type: "string" }
   },
-  required: ["nombre", "descripcion"],
+  required: ["nombre"],
   additionalProperties: false
 }
 

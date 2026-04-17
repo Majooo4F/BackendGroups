@@ -17,10 +17,11 @@ export const createGrupo = async (req, res) => {
     }
 
     const { nombre, descripcion } = req.body
+    const descripcionFinal = (descripcion ?? "").toString().trim() || "Sin descripción"
 
     const { data, error } = await supabase
       .from("grupos")
-      .insert([{ nombre, descripcion, creador_id: userId, creado_en: new Date() }])
+      .insert([{ nombre, descripcion: descripcionFinal, creador_id: userId, creado_en: new Date() }])
       .select()
       .single()
 
@@ -131,10 +132,11 @@ export const updateGrupo = async (req, res) => {
     }
 
     const { nombre, descripcion } = req.body
+    const descripcionFinal = (descripcion ?? "").toString().trim() || "Sin descripción"
 
     const { data, error } = await supabase
       .from("grupos")
-      .update({ nombre, descripcion })
+      .update({ nombre, descripcion: descripcionFinal })
       .eq("id", id)
       .select()
       .single()
@@ -173,8 +175,51 @@ export const updateGrupo = async (req, res) => {
 export const deleteGrupo = async (req, res) => {
   try {
     const { id } = req.params
+    const grupoId = Number(id)
 
-    const { error } = await supabase.from("grupos").delete().eq("id", id)
+    const { error: permisosErr } = await supabase
+      .from("grupo_usuario_permisos")
+      .delete()
+      .eq("grupo_id", grupoId)
+
+    if (permisosErr) {
+      return sendResponse(res, {
+        statusCode: 500,
+        intOpCode: "SxGR500",
+        data: { message: "Error eliminando permisos del grupo: " + permisosErr.message }
+      })
+    }
+
+    const { error: miembrosErr } = await supabase
+      .from("grupo_miembros")
+      .delete()
+      .eq("grupo_id", grupoId)
+
+    if (miembrosErr) {
+      return sendResponse(res, {
+        statusCode: 500,
+        intOpCode: "SxGR500",
+        data: { message: "Error eliminando miembros del grupo: " + miembrosErr.message }
+      })
+    }
+
+    const { error: ticketsErr } = await supabase
+      .from("tickets")
+      .delete()
+      .eq("grupo_id", grupoId)
+
+    if (ticketsErr) {
+      return sendResponse(res, {
+        statusCode: 500,
+        intOpCode: "SxGR500",
+        data: { message: "Error eliminando tickets del grupo: " + ticketsErr.message }
+      })
+    }
+
+    const { error } = await supabase
+      .from("grupos")
+      .delete()
+      .eq("id", grupoId)
 
     if (error) {
       return sendResponse(res, {
